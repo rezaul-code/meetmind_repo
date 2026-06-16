@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@color/meetmind_primary"
+        android:pathData="M17.65,6.35A7.95,7.95 0,0 0,12 4a8,8 0,1 0,7.75 10h-2.08A6,6 0,1 1,12 6c1.3,0 2.53,0.42 3.53,1.17L13,9.7h7V2l-2.35,4.35z" />
+</vector>
