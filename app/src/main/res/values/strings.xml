@@ -1,3 +1,17 @@
 <resources>
-    <string name="app_name">Meetmind</string>
+    <string name="app_name">MeetMind</string>
+    <string name="title_main">MeetMind</string>
+    <string name="start_recording">Start Recording</string>
+    <string name="view_recordings">View Recordings</string>
+    <string name="main_subtitle">Capture meeting audio and keep every session organized.</string>
+    <string name="recording_title">Recording in progress</string>
+    <string name="recording_timer">00:00:00</string>
+    <string name="stop_recording">Stop Recording</string>
+    <string name="recordings_title">Recordings</string>
+    <string name="recordings_subtitle">All saved meeting recordings are stored locally on your device.</string>
+    <string name="recordings_empty">No recordings yet</string>
+    <string name="audio_permission_required">Microphone permission is required to record meetings.</string>
+    <string name="recording_storage_hint">Recordings are saved inside app-specific storage.</string>
+    <string name="recording_saved">Recording saved</string>
+    <string name="recording_failed">Unable to start recording.</string>
 </resources>

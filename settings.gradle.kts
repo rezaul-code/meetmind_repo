@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Meetmind"
+rootProject.name = "MeetMind"
 include(":app")
  
