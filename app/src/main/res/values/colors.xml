@@ -2,4 +2,12 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="meetmind_primary">#0F766E</color>
+    <color name="meetmind_on_primary">#FFFFFFFF</color>
+    <color name="meetmind_primary_container">#A7F3D0</color>
+    <color name="meetmind_on_primary_container">#042F2E</color>
+    <color name="meetmind_secondary">#334155</color>
+    <color name="meetmind_surface">#F8FAFC</color>
+    <color name="meetmind_background">#EEF6F7</color>
+    <color name="meetmind_error">#B3261E</color>
 </resources>
