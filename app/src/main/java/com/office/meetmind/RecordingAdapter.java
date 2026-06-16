@@ -13,7 +13,16 @@ import java.util.List;
 
 public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.RecordingViewHolder> {
 
+    public interface OnRecordingClickListener {
+        void onRecordingClicked(RecordingModel recordingModel);
+    }
+
     private final List<RecordingModel> recordings = new ArrayList<>();
+    private final OnRecordingClickListener listener;
+
+    public RecordingAdapter(OnRecordingClickListener listener) {
+        this.listener = listener;
+    }
 
     public void submitList(List<RecordingModel> newRecordings) {
         recordings.clear();
@@ -36,7 +45,7 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.Reco
 
     @Override
     public void onBindViewHolder(@NonNull RecordingViewHolder holder, int position) {
-        holder.bind(recordings.get(position));
+        holder.bind(recordings.get(position), listener);
     }
 
     @Override
@@ -52,10 +61,16 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.Reco
             this.binding = binding;
         }
 
-        void bind(RecordingModel recordingModel) {
-            binding.fileNameText.setText(recordingModel.getFileName());
+        void bind(RecordingModel recordingModel, OnRecordingClickListener listener) {
+            binding.fileNameText.setText(recordingModel.getDisplayName());
             binding.dateText.setText(recordingModel.getDateText());
             binding.durationText.setText(recordingModel.getDurationText());
+            binding.getRoot().setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onRecordingClicked(recordingModel);
+                }
+            });
         }
     }
+
 }

@@ -73,7 +73,7 @@ public class RecordActivity extends AppCompatActivity {
     private void startRecording() {
         try {
             File currentRecordingFile = AudioRecorder.createRecordingFile(this);
-            audioRecorder.startRecording(currentRecordingFile);
+            audioRecorder.startRecording(this, currentRecordingFile);
             isRecording = true;
             recordingStartedAtMs = System.currentTimeMillis();
             binding.statusText.setText(R.string.recording_title);

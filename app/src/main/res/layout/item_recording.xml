@@ -5,43 +5,83 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="14dp"
+    android:clickable="true"
+    android:focusable="true"
     app:cardBackgroundColor="@color/meetmind_surface"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="2dp">
+    app:cardCornerRadius="22dp"
+    app:cardElevation="3dp"
+    app:rippleColor="@color/meetmind_primary_container">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:padding="18dp">
+
+        <ImageView
+            android:id="@+id/iconView"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_recording_icon"
+            android:padding="10dp"
+            android:src="@drawable/ic_recording_file"
+            android:tint="@color/meetmind_primary"
+            tools:ignore="UseAppTint"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/fileNameText"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="12dp"
             android:textColor="@color/meetmind_primary"
             android:textSize="16sp"
             android:textStyle="bold"
             android:maxLines="1"
             android:ellipsize="end"
-            tools:text="Meeting_20260616_180000.m4a" />
+            app:layout_constraintEnd_toStartOf="@id/chevronView"
+            app:layout_constraintStart_toEndOf="@id/iconView"
+            app:layout_constraintTop_toTopOf="@id/iconView"
+            tools:text="Meeting_20260616_180000" />
 
         <TextView
             android:id="@+id/dateText"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="12dp"
             android:textColor="@color/meetmind_secondary"
-            android:textSize="14sp"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toStartOf="@id/chevronView"
+            app:layout_constraintStart_toEndOf="@id/iconView"
+            app:layout_constraintTop_toBottomOf="@id/fileNameText"
             tools:text="16 Jun 2026, 06:00 PM" />
 
         <TextView
             android:id="@+id/durationText"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
             android:layout_marginTop="6dp"
+            android:layout_marginEnd="12dp"
             android:textColor="@color/meetmind_secondary"
-            android:textSize="14sp"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toStartOf="@id/chevronView"
+            app:layout_constraintStart_toEndOf="@id/iconView"
+            app:layout_constraintTop_toBottomOf="@id/dateText"
             tools:text="00:12:31" />
-    </LinearLayout>
+
+        <ImageView
+            android:id="@+id/chevronView"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_chevron_right"
+            android:tint="@color/meetmind_secondary"
+            tools:ignore="UseAppTint"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
