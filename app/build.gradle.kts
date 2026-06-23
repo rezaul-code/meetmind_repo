@@ -13,6 +13,10 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        ndk {
+            abiFilters += setOf("arm64-v8a", "armeabi-v7a")
+        }
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -28,6 +32,21 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    sourceSets {
+        getByName("main") {
+            assets.srcDirs("src/main/assets")
+            jniLibs.srcDirs("src/main/jniLibs")
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+    androidResources {
+        noCompress += "bin"
     }
     buildFeatures {
         viewBinding = true

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.office.meetmind.databinding.ActivityRecordDetailsBinding;
+import com.office.meetmind.whisper.TranscriptActivity;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,6 +41,7 @@ public class RecordingDetailsActivity extends AppCompatActivity implements Audio
     private boolean isSeekBarUserChange;
     private boolean isRecordingReady;
     private int totalDurationMs;
+    private RecordingModel recordingModel;
 
     public static Intent createIntent(Context context, String filePath) {
         Intent intent = new Intent(context, RecordingDetailsActivity.class);
@@ -65,6 +67,7 @@ public class RecordingDetailsActivity extends AppCompatActivity implements Audio
         binding.pauseButton.setOnClickListener(v -> pausePlayback());
         binding.resumeButton.setOnClickListener(v -> resumePlayback());
         binding.stopButton.setOnClickListener(v -> stopPlayback());
+        binding.transcribeButton.setOnClickListener(v -> openTranscriptScreen());
         binding.deleteButton.setOnClickListener(v -> confirmDelete());
         binding.playbackSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -114,6 +117,7 @@ public class RecordingDetailsActivity extends AppCompatActivity implements Audio
     }
 
     private void bindRecording(RecordingModel recordingModel) {
+        this.recordingModel = recordingModel;
         binding.recordingNameText.setText(recordingModel.getDisplayName());
         binding.recordingDateText.setText(recordingModel.getDateText());
         binding.recordingDurationText.setText(recordingModel.getDurationText());
@@ -171,6 +175,13 @@ public class RecordingDetailsActivity extends AppCompatActivity implements Audio
         showStoppedState();
     }
 
+    private void openTranscriptScreen() {
+        if (recordingModel == null) {
+            return;
+        }
+        startActivity(TranscriptActivity.createIntent(this, recordingModel.getFilePath()));
+    }
+
     private void confirmDelete() {
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.delete_recording)
@@ -205,6 +216,7 @@ public class RecordingDetailsActivity extends AppCompatActivity implements Audio
         binding.pauseButton.setEnabled(false);
         binding.resumeButton.setEnabled(false);
         binding.stopButton.setEnabled(false);
+        binding.transcribeButton.setEnabled(!loading && recordingModel != null);
         binding.deleteButton.setEnabled(!loading);
         binding.playbackSeekBar.setEnabled(!loading);
     }
@@ -215,6 +227,7 @@ public class RecordingDetailsActivity extends AppCompatActivity implements Audio
         binding.pauseButton.setEnabled(false);
         binding.resumeButton.setEnabled(false);
         binding.stopButton.setEnabled(false);
+        binding.transcribeButton.setEnabled(recordingModel != null);
         binding.deleteButton.setEnabled(true);
         binding.playbackSeekBar.setEnabled(isRecordingReady);
     }
@@ -225,6 +238,7 @@ public class RecordingDetailsActivity extends AppCompatActivity implements Audio
         binding.pauseButton.setEnabled(true);
         binding.resumeButton.setEnabled(false);
         binding.stopButton.setEnabled(true);
+        binding.transcribeButton.setEnabled(recordingModel != null);
         binding.deleteButton.setEnabled(true);
         binding.playbackSeekBar.setEnabled(isRecordingReady);
     }
@@ -235,6 +249,7 @@ public class RecordingDetailsActivity extends AppCompatActivity implements Audio
         binding.pauseButton.setEnabled(false);
         binding.resumeButton.setEnabled(true);
         binding.stopButton.setEnabled(true);
+        binding.transcribeButton.setEnabled(recordingModel != null);
         binding.deleteButton.setEnabled(true);
         binding.playbackSeekBar.setEnabled(isRecordingReady);
     }
@@ -245,6 +260,7 @@ public class RecordingDetailsActivity extends AppCompatActivity implements Audio
         binding.pauseButton.setEnabled(false);
         binding.resumeButton.setEnabled(false);
         binding.stopButton.setEnabled(false);
+        binding.transcribeButton.setEnabled(recordingModel != null);
         binding.deleteButton.setEnabled(true);
         binding.playbackSeekBar.setEnabled(isRecordingReady);
     }
@@ -255,6 +271,7 @@ public class RecordingDetailsActivity extends AppCompatActivity implements Audio
         binding.pauseButton.setEnabled(false);
         binding.resumeButton.setEnabled(false);
         binding.stopButton.setEnabled(false);
+        binding.transcribeButton.setEnabled(recordingModel != null);
         binding.playbackSeekBar.setEnabled(false);
     }
 
