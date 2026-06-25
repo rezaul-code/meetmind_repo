@@ -1,65 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mainRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/meetmind_background"
     tools:context=".MainActivity">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/heroCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="10dp"
         app:cardBackgroundColor="@color/meetmind_surface"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="6dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="28dp">
+
+            <!-- Logo -->
+
+            <ImageView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/meetmind_logo"
+                android:contentDescription="Logo"/>
 
             <TextView
-                android:id="@+id/titleText"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
+                android:layout_marginTop="18dp"
+                android:text="MeetMind"
                 android:textColor="@color/meetmind_primary"
-                android:textSize="32sp"
+                android:textSize="34sp"
                 android:textStyle="bold"
-                tools:text="@string/title_main" />
+                android:layout_gravity="center_horizontal"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/main_subtitle"
+                android:gravity="center"
+                android:text="AI-powered meeting recorder that captures, transcribes and summarizes every conversation."
                 android:textColor="@color/meetmind_secondary"
-                android:textSize="15sp" />
+                android:textSize="16sp"/>
+
+            <!-- Features -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Offline"
+                    style="@style/Widget.Material3.Chip.Assist"/>
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="AI Summary"
+                    style="@style/Widget.Material3.Chip.Assist"/>
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Secure"
+                    style="@style/Widget.Material3.Chip.Assist"/>
+
+            </LinearLayout>
+
+            <!-- Start Button -->
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/startRecordingButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:text="@string/start_recording" />
+                android:layout_height="58dp"
+                android:layout_marginTop="32dp"
+                android:text="Start Recording"
+                android:textSize="18sp"
+                app:icon="@android:drawable/ic_btn_speak_now"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp"
+                app:cornerRadius="18dp"/>
+
+            <!-- View Recordings -->
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/viewRecordingsButton"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_marginTop="16dp"
+                android:text="View Recordings"
+                android:textSize="17sp"
+                app:icon="@android:drawable/ic_menu_agenda"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp"
+                app:cornerRadius="18dp"/>
+
+            <!-- Footer -->
+
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="@string/view_recordings" />
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:text="Powered by Whisper • Gemma AI"
+                android:textColor="#9AA4AF"
+                android:textSize="13sp"/>
+
         </LinearLayout>
+
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
