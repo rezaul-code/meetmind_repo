@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/swipeRefreshLayout"
@@ -11,79 +12,96 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!-- Header -->
+
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/headerCard"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="36dp"
             android:layout_marginEnd="20dp"
             app:cardBackgroundColor="@color/meetmind_surface"
-            app:cardCornerRadius="28dp"
-            app:cardElevation="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="6dp"
+            app:strokeColor="#15000000"
+            app:strokeWidth="1dp"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="20dp">
+                android:padding="22dp">
 
-                <TextView
-                    android:id="@+id/titleText"
+                <LinearLayout
+                    android:id="@+id/titleContainer"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/meetmind_primary"
-                    android:textSize="30sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@id/refreshButton"
+                    android:orientation="vertical"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/refreshButton"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:text="@string/recordings_title" />
+                    app:layout_constraintBottom_toBottomOf="parent">
 
-                <TextView
-                    android:id="@+id/subtitleText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="@string/recordings_subtitle"
-                    android:textColor="@color/meetmind_secondary"
-                    android:textSize="14sp"
-                    app:layout_constraintEnd_toStartOf="@id/refreshButton"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/titleText" />
+                    <TextView
+                        android:id="@+id/titleText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/meetmind_primary"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        tools:text="Recordings"/>
+
+                    <TextView
+                        android:id="@+id/subtitleText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="@string/recordings_subtitle"
+                        android:textColor="@color/meetmind_secondary"
+                        android:textSize="15sp"/>
+
+                </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/refreshButton"
                     style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/refresh_recordings"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:contentDescription="Refresh"
                     app:icon="@drawable/ic_refresh"
-                    app:iconGravity="textStart"
+                    app:iconGravity="textTop"
+                    app:iconPadding="0dp"
+                    app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
+
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- Recordings -->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="18dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
             android:clipToPadding="false"
-            android:paddingBottom="12dp"
+            android:paddingBottom="24dp"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/headerCard"
-            tools:listitem="@layout/item_recording" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:listitem="@layout/item_recording"/>
+
+        <!-- Empty State -->
 
         <LinearLayout
             android:id="@+id/emptyStateContainer"
@@ -93,48 +111,51 @@
             android:orientation="vertical"
             android:padding="32dp"
             android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/headerCard"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/headerCard">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <ImageView
-                android:layout_width="84dp"
-                android:layout_height="84dp"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
                 android:src="@drawable/ic_recordings_empty"
-                android:tint="@color/meetmind_primary"
-                tools:ignore="UseAppTint" />
+                app:tint="@color/meetmind_primary" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
                 android:text="@string/recordings_empty_title"
                 android:textColor="@color/meetmind_primary"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textSize="22sp"
+                android:textStyle="bold"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="@string/recordings_empty_body"
                 android:textColor="@color/meetmind_secondary"
-                android:textSize="14sp" />
+                android:textSize="15sp"/>
+
         </LinearLayout>
+
+        <!-- Loading -->
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/loadingProgress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
-            android:indeterminate="true"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            android:indeterminate="true"
             app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

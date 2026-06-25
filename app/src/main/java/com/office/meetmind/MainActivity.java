@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-        binding.titleText.setText(R.string.title_main);
         binding.startRecordingButton.setOnClickListener(v -> requestAudioPermissionAndStart());
         binding.viewRecordingsButton.setOnClickListener(v ->
                 startActivity(new Intent(this, RecordingsActivity.class)));

@@ -11,7 +11,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp">
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="20dp"
+        android:paddingTop="36dp">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/headerCard"
@@ -27,7 +30,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="20dp">
+                android:padding="24dp">
 
                 <ImageView
                     android:id="@+id/headerIcon"
@@ -61,7 +64,7 @@
                     android:layout_marginStart="14dp"
                     android:layout_marginTop="6dp"
                     android:textColor="@color/meetmind_secondary"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/headerIcon"
                     app:layout_constraintTop_toBottomOf="@id/titleText"
@@ -85,7 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="24dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -123,7 +126,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="24dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -169,7 +172,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="24dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -189,10 +192,12 @@
                         android:id="@+id/transcriptText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:lineSpacingExtra="4dp"
                         android:textColor="@color/meetmind_primary"
                         android:textIsSelectable="true"
-                        android:textSize="15sp"
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="8dp"
+                        android:fontFamily="sans-serif"
+                        android:paddingBottom="12dp"
                         tools:text="The transcript text appears here after Whisper finishes." />
                 </ScrollView>
             </LinearLayout>
