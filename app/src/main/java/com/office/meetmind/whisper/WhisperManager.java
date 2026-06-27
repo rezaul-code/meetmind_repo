@@ -40,13 +40,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class WhisperManager {
 
     public static final String TAG = "WhisperManager";
-    private static final String MODEL_ASSET_NAME = "ggml-base.bin";
-    private static final long MIN_MODEL_SIZE_BYTES = 100L * 1024L * 1024L;
+    private static final String MODEL_ASSET_NAME_BASE = "ggml-base.bin";
+    private static final String MODEL_ASSET_NAME_TINY = "ggml-tiny.bin";
+    private static final long MIN_MODEL_SIZE_BYTES_BASE = 100L * 1024L * 1024L;
+    private static final long MIN_MODEL_SIZE_BYTES_TINY = 50L * 1024L * 1024L;
     private static final String WHISPER_LIBRARY_NAME = "whisper";
     private static final String WHISPER_FALLBACK_LIBRARY_NAME = "whisper_jni";
-    private static final String[] MODEL_ASSET_CANDIDATES = {
-            MODEL_ASSET_NAME,
-            "whisper/" + MODEL_ASSET_NAME
+    private static final String[] MODEL_ASSET_CANDIDATES_BASE = {
+            MODEL_ASSET_NAME_BASE,
+            "whisper/" + MODEL_ASSET_NAME_BASE
+    };
+    private static final String[] MODEL_ASSET_CANDIDATES_TINY = {
+            MODEL_ASSET_NAME_TINY,
+            "whisper/" + MODEL_ASSET_NAME_TINY
     };
 
     private static final boolean NATIVE_LIBRARY_AVAILABLE;
@@ -105,17 +111,48 @@ public class WhisperManager {
     }
 
     public boolean isModelAvailable() {
-        Log.i(TAG, "Validating Whisper model availability");
-        Log.i(TAG, "Asset candidates: " + Arrays.toString(MODEL_ASSET_CANDIDATES));
+        return isModelAvailable(ModelType.BASE);
+    }
+
+    public boolean isModelAvailable(ModelType modelType) {
+        Log.i(TAG, "Validating Whisper model availability for " + modelType);
+        String[] candidates = getModelAssetCandidates(modelType);
+        Log.i(TAG, "Asset candidates: " + Arrays.toString(candidates));
         Log.i(TAG, "App internal files directory: " + appContext.getFilesDir().getAbsolutePath());
-        String resolvedAssetPath = resolveModelAssetPath();
+        String resolvedAssetPath = resolveModelAssetPath(modelType);
         Log.i(TAG, "Model availability resolved asset path: " + resolvedAssetPath);
         return resolvedAssetPath != null;
     }
 
-    private String resolveModelAssetPath() {
+    private String getModelAssetName(ModelType modelType) {
+        if (modelType == ModelType.TINY) {
+            return MODEL_ASSET_NAME_TINY;
+        }
+        return MODEL_ASSET_NAME_BASE;
+    }
+
+    private String[] getModelAssetCandidates(ModelType modelType) {
+        if (modelType == ModelType.TINY) {
+            return MODEL_ASSET_CANDIDATES_TINY;
+        }
+        return MODEL_ASSET_CANDIDATES_BASE;
+    }
+
+    private long getMinimumModelSizeBytes(ModelType modelType) {
+        if (modelType == ModelType.TINY) {
+            return MIN_MODEL_SIZE_BYTES_TINY;
+        }
+        return MIN_MODEL_SIZE_BYTES_BASE;
+    }
+
+    private String resolveModelAssetPath(ModelType modelType) {
+        String[] modelAssetCandidates = getModelAssetCandidates(modelType);
+        String expectedModelAssetName = getModelAssetName(modelType);
+        long minimumModelSizeBytes = getMinimumModelSizeBytes(modelType);
         AssetManager assetManager = appContext.getAssets();
-        for (String assetPath : MODEL_ASSET_CANDIDATES) {
+        Log.d(TAG, "Loading model for " + modelType + ", getModelAssetName()=" + expectedModelAssetName
+                + ", minimumSizeBytes=" + minimumModelSizeBytes);
+        for (String assetPath : modelAssetCandidates) {
             Log.i(TAG, "Checking model asset candidate: " + assetPath);
 
             Long descriptorSize = null;
@@ -140,21 +177,22 @@ public class WhisperManager {
             }
 
             long resolvedSize = descriptorSize != null ? descriptorSize : streamSize;
-            if (resolvedSize < MIN_MODEL_SIZE_BYTES) {
-                Log.e(TAG, "Model asset is too small at " + assetPath + ". Expected >= " + MIN_MODEL_SIZE_BYTES + " bytes but found " + resolvedSize);
+            if (resolvedSize < minimumModelSizeBytes) {
+                Log.e(TAG, "Model asset is too small at " + assetPath + ". Expected >= "
+                        + minimumModelSizeBytes + " bytes but found " + resolvedSize);
                 continue;
             }
 
             Log.i(TAG, "Model asset is available and valid: " + assetPath + " (" + resolvedSize + " bytes)");
             return assetPath;
         }
-        Log.e(TAG, "Whisper model is missing from assets or below minimum size. Checked candidates=" + Arrays.toString(MODEL_ASSET_CANDIDATES));
+        Log.e(TAG, "Whisper model is missing from assets or below minimum size. Checked candidates=" + Arrays.toString(modelAssetCandidates));
         return null;
     }
 
     public StartupReport performStartupVerification() {
         StartupReport report = new StartupReport();
-        report.modelAvailable = isModelAvailable();
+        report.modelAvailable = isModelAvailable(ModelType.BASE);
         report.nativeLibraryLoaded = NATIVE_LIBRARY_AVAILABLE;
         report.loadedNativeLibraryName = LOADED_NATIVE_LIBRARY_NAME;
         report.nativeLoadFailureMessage = NATIVE_LOAD_FAILURE_MESSAGE;
@@ -163,8 +201,8 @@ public class WhisperManager {
         report.storageWritable = isStorageWritable();
         report.storageMessage = buildStorageMessage();
         report.nativeLibraryDir = appContext.getApplicationInfo().nativeLibraryDir;
-        report.assetModelPath = report.modelAvailable ? resolveModelAssetPath() : null;
-        report.runtimeModelPath = new File(appContext.getFilesDir(), "whisper" + File.separator + MODEL_ASSET_NAME).getAbsolutePath();
+        report.assetModelPath = report.modelAvailable ? resolveModelAssetPath(ModelType.BASE) : null;
+        report.runtimeModelPath = new File(appContext.getFilesDir(), "whisper" + File.separator + MODEL_ASSET_NAME_BASE).getAbsolutePath();
         report.whisperSoPresent = isInstalledNativeLibraryPresent("whisper");
         report.whisperJniSoPresent = isInstalledNativeLibraryPresent("whisper_jni");
         report.modelMessage = report.modelAvailable
@@ -210,9 +248,15 @@ public class WhisperManager {
         }
     }
 
-    public void transcribeRecording(String recordingFilePath, TranscriptionCallback callback) {
+    public void transcribeRecording(String recordingFilePath, ModelType modelType, TranscriptionCallback callback) {
         cancelled.set(false);
         executorService.execute(() -> {
+            Thread workerThread = Thread.currentThread();
+            Log.d(TAG, "Background thread alive before transcription: name=" + workerThread.getName()
+                    + ", id=" + workerThread.getId()
+                    + ", interrupted=" + workerThread.isInterrupted()
+                    + ", modelType=" + modelType
+                    + ", recordingFilePath=" + recordingFilePath);
             try {
                 dispatchStatus(callback, appContext.getString(R.string.transcript_loading_recording));
                 RecordingModel recordingModel = recordingRepository.loadRecording(appContext, recordingFilePath);
@@ -234,22 +278,26 @@ public class WhisperManager {
                 }
 
                 dispatchStatus(callback, appContext.getString(R.string.transcript_preparing_model));
-                String resolvedAssetPath = resolveModelAssetPath();
-                Log.i(TAG, "Transcript flow resolved asset path: " + resolvedAssetPath);
+                Log.d(TAG, "Loading model");
+                String resolvedAssetPath = resolveModelAssetPath(modelType);
+                Log.i(TAG, "Transcript flow resolved asset path for " + modelType + ": " + resolvedAssetPath);
                 if (resolvedAssetPath == null) {
                     dispatchError(callback, appContext.getString(R.string.transcript_error_model_not_installed));
                     return;
                 }
-                File modelFile = ensureModelFile(resolvedAssetPath, callback);
+                File modelFile = ensureModelFile(resolvedAssetPath, modelType, callback);
                 if (modelFile == null || !modelFile.exists() || modelFile.length() == 0L) {
                     Log.e(TAG, "Runtime model file missing or empty after ensureModelFile: " + (modelFile == null ? "null" : modelFile.getAbsolutePath()));
                     dispatchError(callback, appContext.getString(R.string.transcript_error_model_not_installed));
                     return;
                 }
+                Log.d(TAG, "Model initialized");
                 Log.i(TAG, "Runtime model file ready at " + modelFile.getAbsolutePath() + " (" + modelFile.length() + " bytes)");
 
                 dispatchStatus(callback, appContext.getString(R.string.transcript_decoding_audio));
                 DecodedAudio decodedAudio = decodeRecordingAudio(recordingModel.getFilePath());
+                Log.d(TAG, "Audio decoded");
+                Log.d(TAG, "PCM size: floatSamples=" + decodedAudio.samples.length + ", sampleRate=" + decodedAudio.sampleRate);
                 Log.i(TAG, "Decoded audio ready: sampleRate=" + decodedAudio.sampleRate + ", samples=" + decodedAudio.samples.length);
 
                 dispatchStatus(callback, appContext.getString(R.string.transcript_transcribing));
@@ -275,6 +323,9 @@ public class WhisperManager {
             } catch (RuntimeException error) {
                 Log.e(TAG, "Runtime failure during transcription", error);
                 dispatchError(callback, appContext.getString(R.string.transcript_error_corrupted_audio));
+            } finally {
+                Log.d(TAG, "Background thread completed transcription task: name=" + workerThread.getName()
+                        + ", interrupted=" + workerThread.isInterrupted());
             }
         });
     }
@@ -292,6 +343,7 @@ public class WhisperManager {
         Log.i(TAG, "Starting transcription with model=" + modelFile.getAbsolutePath()
                 + ", sampleRate=" + decodedAudio.sampleRate
                 + ", samples=" + decodedAudio.samples.length);
+        Log.d(TAG, "Calling JNI");
         String transcriptText = nativeTranscribe(
                 modelFile.getAbsolutePath(),
                 decodedAudio.samples,
@@ -301,6 +353,7 @@ public class WhisperManager {
             Log.e(TAG, "Native transcription returned null");
             return null;
         }
+        Log.d(TAG, "Returning transcript");
         Log.i(TAG, "Transcription finished successfully");
         return transcriptText.trim();
     }
@@ -341,6 +394,9 @@ public class WhisperManager {
             MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
             boolean inputEnded = false;
             boolean outputEnded = false;
+            long queuedInputBytes = 0L;
+            int extractorSampleCount = 0;
+            int decodedOutputBufferCount = 0;
 
             while (!outputEnded) {
                 if (!inputEnded) {
@@ -354,10 +410,13 @@ public class WhisperManager {
                         if (sampleSize < 0) {
                             codec.queueInputBuffer(inputIndex, 0, 0, 0L, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
                             inputEnded = true;
-                            Log.i(TAG, "Audio extractor reached end of stream");
+                            Log.i(TAG, "Audio extractor reached end of stream after "
+                                    + extractorSampleCount + " samples and " + queuedInputBytes + " bytes");
                         } else {
                             long presentationTimeUs = extractor.getSampleTime();
                             codec.queueInputBuffer(inputIndex, 0, sampleSize, presentationTimeUs, 0);
+                            queuedInputBytes += sampleSize;
+                            extractorSampleCount++;
                             extractor.advance();
                         }
                     }
@@ -392,6 +451,7 @@ public class WhisperManager {
                         outputBuffer.limit(bufferInfo.offset + bufferInfo.size);
                         outputBuffer.get(chunk);
                         pcmOutput.write(chunk);
+                        decodedOutputBufferCount++;
                     }
 
                     codec.releaseOutputBuffer(outputIndex, false);
@@ -404,6 +464,9 @@ public class WhisperManager {
             short[] pcmShorts = toShortArray(pcmOutput.toByteArray());
             float[] monoSamples = convertToMono(pcmShorts, channelCount);
             float[] resampledSamples = resample(monoSamples, sourceSampleRate, 16000);
+            Log.d(TAG, "MediaExtractor returned samples=" + extractorSampleCount
+                    + ", queuedInputBytes=" + queuedInputBytes
+                    + ", decodedOutputBuffers=" + decodedOutputBufferCount);
             Log.i(TAG, "Decoded PCM samples=" + pcmShorts.length + ", monoSamples=" + monoSamples.length
                     + ", resampledSamples=" + resampledSamples.length);
             return new DecodedAudio(resampledSamples, 16000);
@@ -487,21 +550,22 @@ public class WhisperManager {
         return output;
     }
 
-    private File ensureModelFile(String resolvedAssetPath, TranscriptionCallback callback) throws IOException {
+    private File ensureModelFile(String resolvedAssetPath, ModelType modelType, TranscriptionCallback callback) throws IOException {
         File whisperDirectory = new File(appContext.getFilesDir(), "whisper");
-        Log.i(TAG, "Ensuring Whisper runtime directory: " + whisperDirectory.getAbsolutePath());
+        Log.i(TAG, "Ensuring Whisper runtime directory for " + modelType + ": " + whisperDirectory.getAbsolutePath());
         if (!whisperDirectory.exists() && !whisperDirectory.mkdirs()) {
             throw new IOException("Unable to create Whisper storage directory");
         }
 
-        File targetFile = new File(whisperDirectory, MODEL_ASSET_NAME);
+        String modelFileName = getModelAssetName(modelType);
+        File targetFile = new File(whisperDirectory, modelFileName);
         Log.i(TAG, "Model destination path: " + targetFile.getAbsolutePath());
         if (targetFile.exists() && targetFile.length() > 0L) {
             Log.i(TAG, "Model already present in internal storage: " + targetFile.length() + " bytes");
             return targetFile;
         }
 
-        File tempFile = new File(whisperDirectory, MODEL_ASSET_NAME + ".tmp");
+        File tempFile = new File(whisperDirectory, modelFileName + ".tmp");
         if (tempFile.exists()) {
             tempFile.delete();
         }
@@ -647,6 +711,7 @@ public class WhisperManager {
         }
         mainHandler.post(() -> {
             if (!cancelled.get()) {
+                Log.d(TAG, "Callback invoked: onRecordingLoaded(" + recordingName + ")");
                 callback.onRecordingLoaded(recordingName);
             }
         });
@@ -659,6 +724,7 @@ public class WhisperManager {
         int safeProgress = Math.max(0, Math.min(progress, 100));
         mainHandler.post(() -> {
             if (!cancelled.get()) {
+                Log.d(TAG, "Callback invoked: onProgress(" + safeProgress + ")");
                 callback.onProgress(safeProgress);
             }
         });
@@ -670,6 +736,7 @@ public class WhisperManager {
         }
         mainHandler.post(() -> {
             if (!cancelled.get()) {
+                Log.d(TAG, "Callback invoked: onStatusChanged(" + statusMessage + ")");
                 callback.onStatusChanged(statusMessage);
             }
         });
@@ -681,6 +748,9 @@ public class WhisperManager {
         }
         mainHandler.post(() -> {
             if (!cancelled.get()) {
+                Log.d(TAG, "Callback invoked: onTranscriptionCompleted(length="
+                        + (transcriptText == null ? 0 : transcriptText.length())
+                        + ", file=" + (transcriptFile == null ? "null" : transcriptFile.getAbsolutePath()) + ")");
                 callback.onTranscriptionCompleted(transcriptText, transcriptFile);
             }
         });
@@ -692,6 +762,7 @@ public class WhisperManager {
         }
         mainHandler.post(() -> {
             if (!cancelled.get()) {
+                Log.e(TAG, "Callback invoked: onError(" + errorMessage + ")");
                 callback.onError(errorMessage);
             }
         });

@@ -27,7 +27,7 @@
     <string name="player_missing_file">This recording file is missing.</string>
     <string name="player_corrupted_file">This recording cannot be played.</string>
     <string name="player_playback_failed">Playback failed. Please try again.</string>
-    <string name="delete_recording">Delete recording</string>
+    <string name="delete_recording">Delete</string>
     <string name="delete_recording_confirm">Delete this recording from storage? This cannot be undone.</string>
     <string name="delete_success">Recording deleted</string>
     <string name="delete_failed">Unable to delete recording.</string>
@@ -54,7 +54,7 @@
     <string name="transcript_no_speech">No speech detected in this recording.</string>
     <string name="transcript_error_missing_recording">The selected recording file could not be found.</string>
     <string name="transcript_error_missing_model">Whisper model is missing from assets.</string>
-    <string name="transcript_error_model_not_installed">Whisper model not installed. Please place ggml-base.bin inside app/src/main/assets.</string>
+    <string name="transcript_error_model_not_installed">Whisper model not installed. Please place the selected model file inside app/src/main/assets.</string>
     <string name="transcript_error_corrupted_audio">The recording could not be transcribed.</string>
     <string name="transcript_error_memory">The device ran out of memory while transcribing.</string>
     <string name="transcript_error_native_missing">Whisper native library is not installed.</string>
