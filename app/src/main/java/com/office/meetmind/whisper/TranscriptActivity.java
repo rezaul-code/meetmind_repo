@@ -3,6 +3,7 @@ package com.office.meetmind.whisper;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -18,10 +19,13 @@ import java.io.File;
 public class TranscriptActivity extends AppCompatActivity implements TranscriptionCallback {
 
     public static final String EXTRA_FILE_PATH = "extra_file_path";
+    private static final String TAG = "TranscriptActivity";
 
     private ActivityTranscriptBinding binding;
     private WhisperManager whisperManager;
     private String recordingFilePath;
+
+    private ModelType selectedModel = ModelType.TINY;
 
     public static Intent createIntent(Context context, String recordingFilePath) {
         Intent intent = new Intent(context, TranscriptActivity.class);
@@ -42,12 +46,25 @@ public class TranscriptActivity extends AppCompatActivity implements Transcripti
         binding.transcriptText.setText("");
         showWorkingState();
 
+        binding.rgModel.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.rbTiny) {
+                selectedModel = ModelType.TINY;
+            } else {
+                selectedModel = ModelType.BASE;
+            }
+            Log.d(TAG, "Selected model changed to " + selectedModel);
+        });
+
+        binding.btnStartTranscription.setOnClickListener(v -> {
+            Log.d(TAG, "Start transcription clicked. file=" + recordingFilePath + ", model=" + selectedModel);
+            whisperManager.transcribeRecording(recordingFilePath, selectedModel, this);
+        });
+
         if (recordingFilePath == null || recordingFilePath.trim().isEmpty()) {
             showFatalErrorAndFinish(getString(R.string.transcript_error_missing_recording));
             return;
         }
 
-        whisperManager.transcribeRecording(recordingFilePath, this);
     }
 
     private void showWorkingState() {
@@ -69,11 +86,13 @@ public class TranscriptActivity extends AppCompatActivity implements Transcripti
 
     @Override
     public void onRecordingLoaded(String recordingName) {
+        Log.d(TAG, "Callback invoked: onRecordingLoaded(" + recordingName + ")");
         binding.recordingNameText.setText(recordingName);
     }
 
     @Override
     public void onProgress(int progress) {
+        Log.d(TAG, "Callback invoked: onProgress(" + progress + ")");
         binding.progressIndicator.setIndeterminate(false);
         binding.progressIndicator.setProgressCompat(progress, true);
         binding.progressText.setText(getString(R.string.transcript_progress_format, progress));
@@ -81,11 +100,15 @@ public class TranscriptActivity extends AppCompatActivity implements Transcripti
 
     @Override
     public void onStatusChanged(String statusMessage) {
+        Log.d(TAG, "Callback invoked: onStatusChanged(" + statusMessage + ")");
         binding.statusText.setText(statusMessage);
     }
 
     @Override
     public void onTranscriptionCompleted(String transcriptText, File transcriptFile) {
+        Log.d(TAG, "Callback invoked: onTranscriptionCompleted(length="
+                + (transcriptText == null ? 0 : transcriptText.length())
+                + ", file=" + (transcriptFile == null ? "null" : transcriptFile.getAbsolutePath()) + ")");
         binding.loadingGroup.setVisibility(View.VISIBLE);
         binding.progressIndicator.setIndeterminate(false);
         binding.progressIndicator.setProgressCompat(100, true);
@@ -96,6 +119,7 @@ public class TranscriptActivity extends AppCompatActivity implements Transcripti
 
     @Override
     public void onError(String errorMessage) {
+        Log.e(TAG, "Callback invoked: onError(" + errorMessage + ")");
         String resolvedMessage = resolveErrorMessage(errorMessage);
         binding.loadingGroup.setVisibility(View.VISIBLE);
         binding.progressIndicator.setIndeterminate(false);
